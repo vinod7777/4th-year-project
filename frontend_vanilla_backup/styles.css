@@ -1,0 +1,137 @@
+/* =========================================================================
+   Custom Cyber-Physical Aesthetics & High-Tech Animations
+   ========================================================================= */
+
+:root {
+  --cyber-bg: #05080f;
+  --cyber-cyan: #38bdf8;
+  --cyber-emerald: #10b981;
+  --cyber-crimson: #ef4444;
+  --cyber-amber: #f59e0b;
+  --cyber-purple: #a855f7;
+}
+
+body {
+  background-color: var(--cyber-bg);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.07) 0%, transparent 50%),
+    linear-gradient(to right, rgba(30, 41, 59, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(30, 41, 59, 0.15) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
+
+/* Custom Thin Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(10, 15, 29, 0.6);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+/* Neon Glow Utilities */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+}
+
+.glow-crimson {
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+/* Animated Dashed Polyline for Quarantined Nodes in Leaflet */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.leaflet-quarantine-line {
+  stroke-dasharray: 8, 8;
+  animation: dash 1s linear infinite;
+}
+
+/* Leaflet Dark Popup Customization */
+.leaflet-popup-content-wrapper {
+  background: rgba(10, 15, 29, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  color: #f1f5f9 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 0 15px rgba(56, 189, 248, 0.2) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(10, 15, 29, 0.95) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+}
+
+.leaflet-container {
+  background: #05080f !important;
+}
+
+/* Custom Marker Pulsing Halo */
+.pulsing-marker-cyan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.pulsing-marker-cyan::before {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.35);
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.pulsing-marker-crimson::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.5);
+  animation: pulse-ring 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Three.js Canvas Container */
+#three-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+  cursor: grab;
+}
+
+#three-container canvas:active {
+  cursor: grabbing;
+}

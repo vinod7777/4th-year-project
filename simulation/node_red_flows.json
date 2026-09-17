@@ -1,0 +1,606 @@
+[
+  {
+    "id": "tab_smart_city_gateway",
+    "type": "tab",
+    "label": "Medchal & Hyderabad Cyber Security Digital Twin",
+    "disabled": false,
+    "info": "Complete IoT SCADA telemetry stream and cyberattack simulation gateway for 10 municipal infrastructure nodes in Medchal North and Greater Hyderabad."
+  },
+  {
+    "id": "group_telemetry",
+    "type": "group",
+    "z": "tab_smart_city_gateway",
+    "name": "1. Telemetry Generation & HTTP Dispatch to Port 5000",
+    "style": {
+      "stroke": "#38bdf8",
+      "fill": "#082f49",
+      "fill-opacity": "0.25",
+      "label": true,
+      "color": "#38bdf8"
+    },
+    "nodes": [
+      "inject_timer_2s",
+      "inject_manual_single",
+      "func_synthesis",
+      "http_post_telemetry",
+      "debug_telemetry",
+      "debug_gateway_response"
+    ],
+    "x": 40,
+    "y": 60,
+    "w": 1180,
+    "h": 220
+  },
+  {
+    "id": "inject_timer_2s",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_telemetry",
+    "name": "Every 2s Telemetry Clock",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "2",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.5,
+    "topic": "clock_tick",
+    "payload": "",
+    "payloadType": "date",
+    "x": 190,
+    "y": 120,
+    "wires": [
+      [
+        "func_synthesis"
+      ]
+    ]
+  },
+  {
+    "id": "inject_manual_single",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_telemetry",
+    "name": "Single Telemetry Ping",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "topic": "manual_ping",
+    "payload": "",
+    "payloadType": "date",
+    "x": 180,
+    "y": 180,
+    "wires": [
+      [
+        "func_synthesis"
+      ]
+    ]
+  },
+  {
+    "id": "func_synthesis",
+    "type": "function",
+    "z": "tab_smart_city_gateway",
+    "g": "group_telemetry",
+    "name": "Telemetry Synthesizer (Merged62.csv 39-Feature Flow Vector)",
+    "func": "// =========================================================================\n// 1. REGISTRY OF 10 MUNICIPAL NODES (MEDCHAL NORTH & GREATER HYDERABAD)\n// =========================================================================\nconst MUNICIPAL_NODES = [\n  {\n    id: 'medchal-substation-01',\n    code: 'MED-IND-02',\n    name: 'Medchal Industrial Substation',\n    zone: 'Industrial Zone A - Substation 33/11kV',\n    lat: 17.6350,\n    lon: 78.4910,\n    type: 'Power Grid SCADA / Transformer Telemetry',\n    nominal_voltage: 415.0,\n    nominal_temp: 54.0\n  },\n  {\n    id: 'medchal-checkpost-02',\n    code: 'MED-TRAF-01',\n    name: 'Medchal Highway Checkpost',\n    zone: 'National Highway 44 - Toll Checkpost',\n    lat: 17.6297,\n    lon: 78.4814,\n    type: 'Traffic & ANPR Surveillance Node',\n    nominal_voltage: 230.0,\n    nominal_temp: 36.5\n  },\n  {\n    id: 'medchal-water-03',\n    code: 'MED-WAT-04',\n    name: 'Medchal Municipal Water Plant',\n    zone: 'Municipal Water Treatment & Reservoir',\n    lat: 17.6320,\n    lon: 78.4780,\n    type: 'Water SCADA Flow & Pressure Sensor',\n    nominal_voltage: 230.0,\n    nominal_temp: 28.0\n  },\n  {\n    id: 'medchal-streetlight-04',\n    code: 'MED-ENV-03',\n    name: 'Kandlakoya Junction Smart Lighting',\n    zone: 'Kandlakoya Junction Ambient IoT & Oxygen Park',\n    lat: 17.6080,\n    lon: 78.4900,\n    type: 'IoT Streetlight & Ambient Sensor',\n    nominal_voltage: 230.0,\n    nominal_temp: 31.0\n  },\n  {\n    id: 'medchal-phc-05',\n    code: 'MED-ORR-05',\n    name: 'ORR Exit 6 Toll & PHC Cold-Chain',\n    zone: 'Outer Ring Road Exit 6 Corridor',\n    lat: 17.6185,\n    lon: 78.4735,\n    type: 'Healthcare Cold-Chain & Toll Gateway',\n    nominal_voltage: 230.0,\n    nominal_temp: 4.5\n  },\n  {\n    id: 'hyd-cyber-06',\n    code: 'HYD-CYBER-06',\n    name: 'HITEC City Cyber Towers',\n    zone: 'IT Corridor High-Density Data Backbone',\n    lat: 17.4504,\n    lon: 78.3808,\n    type: 'High-Density Fiber SCADA & Smart Grid',\n    nominal_voltage: 230.0,\n    nominal_temp: 32.0\n  },\n  {\n    id: 'hyd-fin-07',\n    code: 'HYD-FIN-07',\n    name: 'Gachibowli Financial District',\n    zone: 'Banking & FinTech Critical Infrastructure',\n    lat: 17.4156,\n    lon: 78.3427,\n    type: 'Financial Data Center Power Grid SCADA',\n    nominal_voltage: 230.0,\n    nominal_temp: 29.5\n  },\n  {\n    id: 'hyd-sc-08',\n    code: 'HYD-SC-08',\n    name: 'Secunderabad Transit Hub',\n    zone: 'Railway Operations & Intermodal SCADA',\n    lat: 17.4399,\n    lon: 78.4983,\n    type: 'Railway Signalling & Transit Microgrid',\n    nominal_voltage: 230.0,\n    nominal_temp: 34.0\n  },\n  {\n    id: 'hyd-air-09',\n    code: 'HYD-AIR-09',\n    name: 'Shamshabad RGIA Airport Gateway',\n    zone: 'Aviation Security & Baggage SCADA',\n    lat: 17.2403,\n    lon: 78.4294,\n    type: 'Airport Airside & Energy SCADA',\n    nominal_voltage: 230.0,\n    nominal_temp: 30.0\n  },\n  {\n    id: 'hyd-old-10',\n    code: 'HYD-OLD-10',\n    name: 'Charminar Heritage Smart Grid',\n    zone: 'Heritage Tourism & Smart Municipal Grid',\n    lat: 17.3616,\n    lon: 78.4747,\n    type: 'Heritage Environmental & Power Sensor',\n    nominal_voltage: 230.0,\n    nominal_temp: 33.5\n  }\n];\n\n// =========================================================================\n// 2. DATASET FEATURE VECTORS (39 FEATURES MATCHING Merged62.csv & Merged61.csv)\n// Columns: [Header_Length, Protocol Type, Time_To_Live, Rate, fin_flag, syn_flag,\n// rst_flag, psh_flag, ack_flag, ece_flag, cwr_flag, ack_count, syn_count, fin_count,\n// rst_count, HTTP, HTTPS, DNS, Telnet, SMTP, SSH, IRC, TCP, UDP, DHCP, ARP, ICMP,\n// IGMP, IPv, LLC, Tot sum, Min, Max, AVG, Std, Tot size, IAT, Number, Variance]\n// =========================================================================\nconst BENIGN_POOLS = [[29.6, 6.0, 180.9, 1409.0449, 0.0, 0.0, 0.0, 0.0, 0.9, 0.0, 0.0, 9.0, 0.0, 0.0, 0.0, 0.0, 0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.9, 0.1, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 3550.0, 60.0, 1514.0, 355.0, 610.8495, 355.0, 0.0008, 10.0, 373137.125], [30.8, 6.0, 233.4, 1228.9561, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 654.0, 60.0, 66.0, 65.4, 1.8974, 65.4, 0.0008, 10.0, 3.6], [29.6, 6.0, 130.8, 608.938, 0.0, 0.0, 0.0, 0.0, 0.9, 0.0, 0.0, 9.0, 0.0, 0.0, 0.0, 0.0, 0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.9, 0.1, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 9342.0, 60.0, 2962.0, 934.2, 1013.0239, 934.2, 0.0021, 10.0, 1026217.3125]];\nconst DDOS_POOLS = [[0.0, 1.0, 64.0, 44601.2773, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 6000.0, 60.0, 60.0, 60.0, 0.0, 60.0, 0.0, 100.0, 0.0], [19.76, 6.0, 67.82, 6874.2178, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0, 0.0, 0.98, 0.02, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 6034.0, 60.0, 81.0, 60.34, 2.4586, 60.34, 0.0001, 100.0, 6.0448], [20.2, 6.0, 64.0, 15700.7715, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 6014.0, 60.0, 74.0, 60.14, 1.4, 60.14, 0.0001, 100.0, 1.96]];\nconst PORTSCAN_POOLS = [[20.0, 6.0, 255.0, 415.4709, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 600.0, 60.0, 60.0, 60.0, 0.0, 60.0, 0.0026, 10.0, 0.0], [20.0, 6.0, 64.0, 3161.6946, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 10.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 600.0, 60.0, 60.0, 60.0, 0.0, 60.0, 0.0003, 10.0, 0.0], [32.0, 6.0, 64.0, 600.8171, 0.6, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 10.0, 0.0, 6.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 660.0, 66.0, 66.0, 66.0, 0.0, 66.0, 0.0017, 10.0, 0.0]];\nconst SPOOFING_POOLS = [[8.0, 17.0, 57.0, 277.6232, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4500.0, 56.0, 808.0, 450.0, 358.7231, 450.0, 0.0036, 10.0, 128682.2188], [21.6, 6.0, 100.0, 85.0563, 0.1, 0.0, 0.0, 0.3, 0.6, 0.0, 0.0, 6.0, 0.0, 1.0, 0.0, 0.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.3, 0.0, 0.0, 0.1, 0.0, 1.0, 1.0, 1372.0, 50.0, 640.0, 137.2, 177.9118, 137.2, 0.0128, 10.0, 31652.623], [12.0, 17.0, 116.4, 35.2984, 0.0, 0.0, 0.0, 0.1, 0.3, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.6, 0.0, 0.1, 0.0, 0.0, 0.9, 0.9, 1178.0, 54.0, 326.0, 117.8, 88.2229, 117.8, 0.0356, 10.0, 7783.2891]];\n\n// 3. Read attack state from flow context\nconst attackMode = flow.get('attack_active') || 0;\nconst targetId = flow.get('attack_target') || null;\n\n// 4. Determine active target node\nlet selectedNode;\nif (attackMode !== 0 && targetId) {\n  selectedNode = MUNICIPAL_NODES.find(n => n.id === targetId) || MUNICIPAL_NODES[5];\n} else if (attackMode === 1) {\n  selectedNode = MUNICIPAL_NODES[5]; // HITEC City\n} else if (attackMode === 2) {\n  selectedNode = MUNICIPAL_NODES[1]; // Medchal Checkpost\n} else if (attackMode === 3) {\n  selectedNode = MUNICIPAL_NODES[6]; // Gachibowli\n} else {\n  const randIdx = Math.floor(Math.random() * MUNICIPAL_NODES.length);\n  selectedNode = MUNICIPAL_NODES[randIdx];\n}\n\n// 5. Synthesize Physical Telemetry Readings\nconst voltage = Number((selectedNode.nominal_voltage + (Math.random() * 4.0 - 2.0)).toFixed(2));\nlet temp = Number((selectedNode.nominal_temp + (Math.random() * 2.0 - 1.0)).toFixed(2));\nif (attackMode !== 0) {\n  temp += 14.5; // Thermal heat surge under cyberattack\n}\nconst loadPct = Number((45.0 + Math.random() * 30.0).toFixed(1));\n\n// 6. Select Exact 39-Feature Dataset Vector\nlet baseVector;\nlet attackLabel;\nif (attackMode === 1) {\n  attackLabel = 'DDoS / Flood Attack';\n  const idx = Math.floor(Math.random() * DDOS_POOLS.length);\n  baseVector = DDOS_POOLS[idx];\n} else if (attackMode === 2) {\n  attackLabel = 'Recon / PortScan';\n  const idx = Math.floor(Math.random() * PORTSCAN_POOLS.length);\n  baseVector = PORTSCAN_POOLS[idx];\n} else if (attackMode === 3) {\n  attackLabel = 'Spoofing / Other';\n  const idx = Math.floor(Math.random() * SPOOFING_POOLS.length);\n  baseVector = SPOOFING_POOLS[idx];\n} else {\n  attackLabel = 'Benign Traffic (Normal)';\n  const idx = Math.floor(Math.random() * BENIGN_POOLS.length);\n  baseVector = BENIGN_POOLS[idx];\n}\n\n// Clone vector and apply realistic jitter on continuous telemetry metrics\nconst flow_stats = baseVector.map((val, i) => {\n  if ([3, 30, 35, 36].includes(i) && val > 0) {\n    const jitter = 1.0 + (Math.random() * 0.04 - 0.02);\n    return Number((val * jitter).toFixed(4));\n  }\n  return val;\n});\n\n// 7. Build HTTP POST Transmission Payload\nmsg.headers = {\n  'Content-Type': 'application/json'\n};\n\nmsg.payload = {\n  timestamp: Math.floor(Date.now() / 1000),\n  node_id: selectedNode.id,\n  node_name: selectedNode.name,\n  municipal_zone: selectedNode.zone,\n  coordinates: {\n    lat: selectedNode.lat,\n    lon: selectedNode.lon\n  },\n  sensor_telemetry: {\n    voltage: voltage,\n    temperature: temp,\n    load_pct: loadPct\n  },\n  attack_mode: attackMode,\n  attack_label: attackLabel,\n  flow_stats: flow_stats\n};\n\n// Update Node-RED node visual status pill\nnode.status({\n  fill: attackMode === 1 ? 'red' : attackMode === 2 ? 'yellow' : attackMode === 3 ? 'blue' : 'green',\n  shape: 'dot',\n  text: `${selectedNode.name} [${attackLabel}]`\n});\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 510,
+    "y": 140,
+    "wires": [
+      [
+        "http_post_telemetry",
+        "debug_telemetry"
+      ]
+    ]
+  },
+  {
+    "id": "http_post_telemetry",
+    "type": "http request",
+    "z": "tab_smart_city_gateway",
+    "g": "group_telemetry",
+    "name": "POST Telemetry (Port 5000)",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://127.0.0.1:5000/api/telemetry",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [
+      {
+        "keyType": "other",
+        "keyValue": "Content-Type",
+        "valueType": "other",
+        "valueValue": "application/json"
+      }
+    ],
+    "x": 860,
+    "y": 120,
+    "wires": [
+      [
+        "debug_gateway_response"
+      ]
+    ]
+  },
+  {
+    "id": "debug_telemetry",
+    "type": "debug",
+    "z": "tab_smart_city_gateway",
+    "g": "group_telemetry",
+    "name": "Synthesized Flow Telemetry",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 860,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "debug_gateway_response",
+    "type": "debug",
+    "z": "tab_smart_city_gateway",
+    "g": "group_telemetry",
+    "name": "Gateway Response & Blockchain Receipt",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "payload.status",
+    "statusType": "auto",
+    "x": 1110,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "group_attacks",
+    "type": "group",
+    "z": "tab_smart_city_gateway",
+    "name": "2. Cyberattack Injection Simulation Controls",
+    "style": {
+      "stroke": "#ef4444",
+      "fill": "#450a0a",
+      "fill-opacity": "0.25",
+      "label": true,
+      "color": "#ef4444"
+    },
+    "nodes": [
+      "inject_ddos_cyber",
+      "inject_ddos_substation",
+      "inject_portscan_checkpost",
+      "inject_portscan_airport",
+      "inject_spoofing_fin",
+      "inject_restore_benign",
+      "func_attack_controller",
+      "debug_attack_state"
+    ],
+    "x": 40,
+    "y": 300,
+    "w": 1180,
+    "h": 320
+  },
+  {
+    "id": "inject_ddos_cyber",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "\ud83d\udd34 Inject DDoS Attack on HITEC City Cyber Towers",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "{\"mode\": 1, \"target\": \"hyd-cyber-06\"}",
+    "payloadType": "json",
+    "x": 250,
+    "y": 350,
+    "wires": [
+      [
+        "func_attack_controller"
+      ]
+    ]
+  },
+  {
+    "id": "inject_ddos_substation",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "\ud83d\udd34 Inject DDoS Attack on Medchal Industrial Substation",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "{\"mode\": 1, \"target\": \"medchal-substation-01\"}",
+    "payloadType": "json",
+    "x": 260,
+    "y": 400,
+    "wires": [
+      [
+        "func_attack_controller"
+      ]
+    ]
+  },
+  {
+    "id": "inject_portscan_checkpost",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "\ud83d\udfe0 Trigger PortScan Recon on Medchal Checkpost",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "{\"mode\": 2, \"target\": \"medchal-checkpost-02\"}",
+    "payloadType": "json",
+    "x": 250,
+    "y": 450,
+    "wires": [
+      [
+        "func_attack_controller"
+      ]
+    ]
+  },
+  {
+    "id": "inject_portscan_airport",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "\ud83d\udfe0 Trigger PortScan Recon on Shamshabad Airport Gateway",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "{\"mode\": 2, \"target\": \"hyd-air-09\"}",
+    "payloadType": "json",
+    "x": 280,
+    "y": 500,
+    "wires": [
+      [
+        "func_attack_controller"
+      ]
+    ]
+  },
+  {
+    "id": "inject_spoofing_fin",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "\ud83d\udfe1 Inject Spoofing Attack on Gachibowli Financial District",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "{\"mode\": 3, \"target\": \"hyd-fin-07\"}",
+    "payloadType": "json",
+    "x": 270,
+    "y": 550,
+    "wires": [
+      [
+        "func_attack_controller"
+      ]
+    ]
+  },
+  {
+    "id": "inject_restore_benign",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "\ud83d\udfe2 Reset to Normal Benign Traffic",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "{\"mode\": 0, \"target\": null}",
+    "payloadType": "json",
+    "x": 200,
+    "y": 600,
+    "wires": [
+      [
+        "func_attack_controller"
+      ]
+    ]
+  },
+  {
+    "id": "func_attack_controller",
+    "type": "function",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "Attack State Coordinator",
+    "func": "const input = msg.payload || {};\nconst mode = typeof input === 'object' ? (input.mode || 0) : Number(input);\nconst target = typeof input === 'object' ? input.target : null;\n\nflow.set('attack_active', mode);\nflow.set('attack_target', target);\n\nlet label = 'Benign Normal Operational Flow';\nlet fill = 'green';\n\nif (mode === 1) {\n  label = `DDoS Flood Attack Injected on ${target || 'City Node'}`;\n  fill = 'red';\n} else if (mode === 2) {\n  label = `PortScan Recon Injected on ${target || 'City Node'}`;\n  fill = 'yellow';\n} else if (mode === 3) {\n  label = `Spoofing Attack Injected on ${target || 'City Node'}`;\n  fill = 'blue';\n}\n\nnode.status({ fill: fill, shape: 'dot', text: label });\n\nmsg.payload = {\n  status: 'attack_state_updated',\n  attack_mode: mode,\n  target_node: target,\n  description: label,\n  timestamp: Math.floor(Date.now() / 1000)\n};\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "flow.set('attack_active', 0);\nflow.set('attack_target', null);",
+    "finalize": "",
+    "libs": [],
+    "x": 670,
+    "y": 460,
+    "wires": [
+      [
+        "debug_attack_state"
+      ]
+    ]
+  },
+  {
+    "id": "debug_attack_state",
+    "type": "debug",
+    "z": "tab_smart_city_gateway",
+    "g": "group_attacks",
+    "name": "Attack Simulation Log",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "payload.description",
+    "statusType": "auto",
+    "x": 950,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "group_reinstatement",
+    "type": "group",
+    "z": "tab_smart_city_gateway",
+    "name": "3. Municipal Node Reinstatement & Health Probes",
+    "style": {
+      "stroke": "#10b981",
+      "fill": "#064e3b",
+      "fill-opacity": "0.25",
+      "label": true,
+      "color": "#10b981"
+    },
+    "nodes": [
+      "inject_reinstate_cyber",
+      "inject_reinstate_substation",
+      "func_prep_reinstate",
+      "http_post_reinstate",
+      "debug_reinstate_response",
+      "inject_health_check",
+      "http_get_health",
+      "debug_health_response"
+    ],
+    "x": 40,
+    "y": 640,
+    "w": 1180,
+    "h": 220
+  },
+  {
+    "id": "inject_reinstate_cyber",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "Reinstate HITEC City Cyber Towers",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "hyd-cyber-06",
+    "payloadType": "str",
+    "x": 200,
+    "y": 690,
+    "wires": [
+      [
+        "func_prep_reinstate"
+      ]
+    ]
+  },
+  {
+    "id": "inject_reinstate_substation",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "Reinstate Medchal Industrial Substation",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "medchal-substation-01",
+    "payloadType": "str",
+    "x": 210,
+    "y": 740,
+    "wires": [
+      [
+        "func_prep_reinstate"
+      ]
+    ]
+  },
+  {
+    "id": "func_prep_reinstate",
+    "type": "function",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "Format Reinstatement Request",
+    "func": "msg.headers = {\n  'Content-Type': 'application/json'\n};\nmsg.payload = {\n  node_id: msg.payload\n};\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 510,
+    "y": 710,
+    "wires": [
+      [
+        "http_post_reinstate"
+      ]
+    ]
+  },
+  {
+    "id": "http_post_reinstate",
+    "type": "http request",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "POST /api/reinstate",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://127.0.0.1:5000/api/reinstate",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [
+      {
+        "keyType": "other",
+        "keyValue": "Content-Type",
+        "valueType": "other",
+        "valueValue": "application/json"
+      }
+    ],
+    "x": 780,
+    "y": 710,
+    "wires": [
+      [
+        "debug_reinstate_response"
+      ]
+    ]
+  },
+  {
+    "id": "debug_reinstate_response",
+    "type": "debug",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "Reinstatement Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "payload.message",
+    "statusType": "auto",
+    "x": 1050,
+    "y": 710,
+    "wires": []
+  },
+  {
+    "id": "inject_health_check",
+    "type": "inject",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "Gateway Health Probe",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "payload": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 810,
+    "wires": [
+      [
+        "http_get_health"
+      ]
+    ]
+  },
+  {
+    "id": "http_get_health",
+    "type": "http request",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "GET /api/health",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://127.0.0.1:5000/api/health",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 510,
+    "y": 810,
+    "wires": [
+      [
+        "debug_health_response"
+      ]
+    ]
+  },
+  {
+    "id": "debug_health_response",
+    "type": "debug",
+    "z": "tab_smart_city_gateway",
+    "g": "group_reinstatement",
+    "name": "Gateway Health Status",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "payload.service",
+    "statusType": "auto",
+    "x": 790,
+    "y": 810,
+    "wires": []
+  }
+]
